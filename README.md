@@ -224,5 +224,6 @@ Automatically downloads when selecting ControlNet models
 [voxo-]: https://colab.research.google.com/github/NUROISEA/anime-webui-colab/blob/main/notebooks/voxo.ipynb
 [waifa]: https://colab.research.google.com/github/NUROISEA/anime-webui-colab/blob/main/notebooks/waifuanything.ipynb
 [waifd]: https://colab.research.google.com/github/NUROISEA/anime-webui-colab/blob/main/notebooks/waifu_diffusion.ipynb
+[waifd]: https://github.com/Navezjt/anime-webui-colab/blob/main/notebooks/NAVEZ_diffusion.ipynb
 
 [own-model]: https://colab.research.google.com/github/NUROISEA/anime-webui-colab/blob/main/notebooks/provide_your_own_models.ipynb
