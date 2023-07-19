@@ -83,7 +83,7 @@ Head over to 🖼[ ***Showcase*** ][showcase]✨ to see what the models might lo
 [![Open In Colab][colab-icon]][voxo-] | VOXO | 🔁📚 | [🤗junjuice0](https://huggingface.co/junjuice0/VOXO) | 2
 [![Open In Colab][colab-icon]][waifa] | Waifu Anything | 🔁 | [🤗KuromiLayfe](https://huggingface.co/KuromiLayfe/WaifuAnything) | 1
 [![Open In Colab][colab-icon]][waifd] | Waifu Diffusion <br>(👑`1.5 beta 3 illusion`) | 📚 | [🤗waifu-diffusion](https://huggingface.co/waifu-diffusion/wd-1-5-beta3) | 12
-
+[![Open In Colab][colab-icon]][voxo-] | JCTN | 🔁📚 | [🤗NAVEZ_diffusion0](https://huggingface.co/junjuice0/VOXO) | 3
 
 <!-- [![Open In Colab][colab-icon]][code] | name | emojis | [🤗author](https://huggingface.co/author/model) | count -->
 
