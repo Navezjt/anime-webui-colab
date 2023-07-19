@@ -83,7 +83,7 @@ Head over to 🖼[ ***Showcase*** ][showcase]✨ to see what the models might lo
 [![Open In Colab][colab-icon]][voxo-] | VOXO | 🔁📚 | [🤗junjuice0](https://huggingface.co/junjuice0/VOXO) | 2
 [![Open In Colab][colab-icon]][waifa] | Waifu Anything | 🔁 | [🤗KuromiLayfe](https://huggingface.co/KuromiLayfe/WaifuAnything) | 1
 [![Open In Colab][colab-icon]][waifd] | Waifu Diffusion <br>(👑`1.5 beta 3 illusion`) | 📚 | [🤗waifu-diffusion](https://huggingface.co/waifu-diffusion/wd-1-5-beta3) | 12
-[![Open In Colab][colab-icon]][voxo-] | JCTN | 🔁📚 | [🤗NAVEZ_diffusion0](https://huggingface.co/junjuice0/VOXO) | 3
+[![Open In Colab][colab-icon]][NAVEZ-] | JCTN | 🔁📚 | [🤗NAVEZ_diffusion](https://huggingface.co/junjuice0/VOXO) | 3
 
 <!-- [![Open In Colab][colab-icon]][code] | name | emojis | [🤗author](https://huggingface.co/author/model) | count -->
 
@@ -225,6 +225,6 @@ Automatically downloads when selecting ControlNet models
 [voxo-]: https://colab.research.google.com/github/NUROISEA/anime-webui-colab/blob/main/notebooks/voxo.ipynb
 [waifa]: https://colab.research.google.com/github/NUROISEA/anime-webui-colab/blob/main/notebooks/waifuanything.ipynb
 [waifd]: https://colab.research.google.com/github/NUROISEA/anime-webui-colab/blob/main/notebooks/waifu_diffusion.ipynb
-[JCTN]: https://github.com/Navezjt/anime-webui-colab/blob/main/notebooks/NAVEZ_diffusion.ipynb
+[NAVEZ-]: https://github.com/Navezjt/anime-webui-colab/blob/main/notebooks/NAVEZ_diffusion.ipynb
 
 [own-model]: https://colab.research.google.com/github/NUROISEA/anime-webui-colab/blob/main/notebooks/provide_your_own_models.ipynb
