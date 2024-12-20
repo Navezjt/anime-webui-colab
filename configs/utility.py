@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 import shlex
+import hashlib
 from datetime import datetime,timezone
 
 logged_keys = []
@@ -51,32 +52,33 @@ def log_usage(key):
 
   if key in logged_keys:
     return
+  
+  logged_keys.append(key)
 
-  namespace = 'NUROISEA/anime-webui-colab'
-  count_url = f'https://api.visitorbadge.io/api/visitors?path={namespace}/{key}'
+  def to_md5(str):
+    return hashlib.md5(str.encode('utf-8')).hexdigest()
+
+  namespace = to_md5('NUROISEA/anime-webui-colab')
+  key = to_md5(key)
+  count_url = f'https://api.counterapi.dev/v1/{namespace}/{key}/up'
 
   try:
-    run_shell(f'curl {count_url}')
+    # why the fuck am i using curl here again?
+    # TODO: remove dependency to shell, use native python requests
+    run_shell(f'curl -X GET {count_url}')
   except:
-    print('😖 visitorbadge.io seems to be having an issue, disabled usage counting for now...')
+    print('😖 counterapi.dev seems to be having an issue, disabled usage counting for now...')
     disabled_logging = True
-
-  logged_keys.append(key)
 
 def colab_memory_fix():
   commands = [
-    'apt -y update -qq &> /dev/null',
-    'wget -q http://launchpadlibrarian.net/367274644/libgoogle-perftools-dev_2.5-2.2ubuntu3_amd64.deb',
-    'wget -q https://launchpad.net/ubuntu/+source/google-perftools/2.5-2.2ubuntu3/+build/14795286/+files/google-perftools_2.5-2.2ubuntu3_all.deb',
-    'wget -q https://launchpad.net/ubuntu/+source/google-perftools/2.5-2.2ubuntu3/+build/14795286/+files/libtcmalloc-minimal4_2.5-2.2ubuntu3_amd64.deb',
-    'wget -q https://launchpad.net/ubuntu/+source/google-perftools/2.5-2.2ubuntu3/+build/14795286/+files/libgoogle-perftools4_2.5-2.2ubuntu3_amd64.deb',
-    'apt install -qq libunwind8-dev &> /dev/null',
-    'dpkg -i *.deb &> /dev/null',
+    'echo "🚨 If you are seeing this, this colab would not run!"',
+    'echo "🚨 Please delete the following lines in the code of the notebook:"',
+    'echo "ℹ Refer to the following image:"',
+    'echo "🖼 https://github.com/NUROISEA/anime-webui-colab/assets/120075289/2fdc20ed-7e75-42b8-9848-b1ab34775fbd"',
+    'echo "🚨 Or grab the latest version of the notebooks here:"',
+    'echo "🌐 https://github.com/NUROISEA/anime-webui-colab"',
   ]
-
-  print('🩹 Applying Colab memory fix...')
-
-  os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
   return commands
 
@@ -86,7 +88,6 @@ def install_webui(option):
   chosen_webui_version = option
 
   version_dictionary = {
-    'fallback':   f'-b 23.03.14 https://github.com/anime-webui-colab/stable-diffusion-webui',
     'stable':     f'-b v1.4.0 https://github.com/anime-webui-colab/stable-diffusion-webui',
     'latest':      'https://github.com/AUTOMATIC1111/stable-diffusion-webui',
     'latest-dev':  '-b dev https://github.com/AUTOMATIC1111/stable-diffusion-webui',
@@ -101,11 +102,11 @@ def install_webui(option):
     print('🧪 This is the cutting-edge version of the web UI! Stuff might not work!')
   elif option == 'latest':
     print('🔼 Selected the latest version of the web UI.')
-  elif option == 'fallback':
-    print('⏲ Selected the fallback version of the web UI. Version released on 23.03.14.')
-    print('📣 Extensions will follow suit.')
+  elif option == 'stable':
+    print('🔔 Selected an old version of the web UI. Version released on 23.06.27. (v1.4.0)')
+    print('🔔 Please consider using the latest version, unless you really need this specific version.')
   
-  print('🌟 Installing stable-diffusion-webui...')
+  print(f'🌟 Installing stable-diffusion-webui ({option})...')
   git_clone_command = f'git clone -q {version_dictionary[option]} {web_ui_folder}'
   return git_clone_command
 
@@ -125,40 +126,6 @@ def extensions_list(option,webui_version='stable',controlnet='none', only_contro
 
   log_usage(f'extensions-version-{option}')
 
-  # i don't like this at all lmao
-  # this is temporary until the fallback is too old to be usable
-  # i think
-  ext_version = {
-    'images-browser': {
-      'fallback': '23.03.16',
-      'stable': '23.05.08',
-    },
-    'tagcomplete': {
-      'fallback': '23.04.05',
-      'stable': '23.06.09',
-    },
-    'aspect-ratio-preset': {
-      'fallback': '23.03.31',
-      'stable': '23.04.12',
-    },
-    'cutoff': {
-      'fallback': '23.03.22',
-      'stable': '23.05.03',
-    },
-    'dynamic-thresholding': {
-      'fallback': '23.04.12',
-      'stable': '23.05.22',
-    },
-    'tiled-multidiffusion-upscaler': {
-      'fallback': '23.04.16',
-      'stable': '23.06.10',
-    },
-  }
-
-  ext_tag = 'stable'
-  if webui_version == 'fallback':
-    ext_tag = 'fallback'
-
   extensions = {
     'lite': [
       f'-b 23.05.03 https://github.com/anime-webui-colab/ext-batchlinks {f}/batchlinks',
@@ -166,26 +133,27 @@ def extensions_list(option,webui_version='stable',controlnet='none', only_contro
       f'-b 22.12.10 https://github.com/anime-webui-colab/ext-tokenizer {f}/tokenizer',
       f'-b 23.02.27 https://github.com/anime-webui-colab/ext-tunnels {f}/tunnels',
 
-      f'-b {ext_version["images-browser"][ext_tag]} https://github.com/anime-webui-colab/ext-images-browser {f}/images-browser',
-      f'-b {ext_version["tagcomplete"][ext_tag]} https://github.com/anime-webui-colab/ext-tagcomplete {f}/tagcomplete',
+      f'-b 23.05.08 https://github.com/anime-webui-colab/ext-images-browser {f}/images-browser',
+      f'-b 23.06.09 https://github.com/anime-webui-colab/ext-tagcomplete {f}/tagcomplete',
     ],
     'stable': [
       f'-b 23.02.19 https://github.com/anime-webui-colab/ext-latent-couple-two-shot {f}/latent-couple-two-shot',
       f'-b 23.03.19 https://github.com/anime-webui-colab/ext-session-organizer {f}/session-organizer',
 
-      f'-b {ext_version["aspect-ratio-preset"][ext_tag]} https://github.com/anime-webui-colab/ext-aspect-ratio-preset {f}/aspect-ratio-preset',
-      f'-b {ext_version["cutoff"][ext_tag]} https://github.com/anime-webui-colab/ext-cutoff {f}/cutoff',
-      f'-b {ext_version["dynamic-thresholding"][ext_tag]} https://github.com/anime-webui-colab/ext-dynamic-thresholding {f}/dynamic-thresholding',
-      f'-b {ext_version["tiled-multidiffusion-upscaler"][ext_tag]} https://github.com/anime-webui-colab/ext-multidiffusion-upscaler {f}/tiled-multidiffusion-upscaler',
+      f'-b 23.04.12 https://github.com/anime-webui-colab/ext-aspect-ratio-preset {f}/aspect-ratio-preset',
+      f'-b 23.05.03 https://github.com/anime-webui-colab/ext-cutoff {f}/cutoff',
+      f'-b 23.05.22 https://github.com/anime-webui-colab/ext-dynamic-thresholding {f}/dynamic-thresholding',
+      f'-b 23.06.10 https://github.com/anime-webui-colab/ext-multidiffusion-upscaler {f}/tiled-multidiffusion-upscaler',
     ],
     'latest': [
       # using my own fork again to not lose my presets
-      f'-b {ext_version["aspect-ratio-preset"][ext_tag]} https://github.com/anime-webui-colab/ext-aspect-ratio-preset {f}/aspect-ratio-preset',
-      f'https://github.com/etherealxx/batchlinks-webui {f}/batchlinks',
+      f'-b 23.04.12 https://github.com/anime-webui-colab/ext-aspect-ratio-preset {f}/aspect-ratio-preset',
+      # f'https://github.com/etherealxx/batchlinks-webui {f}/batchlinks',
       f'https://github.com/hnmr293/sd-webui-cutoff {f}/cutoff',
       f'https://github.com/mcmonkeyprojects/sd-dynamic-thresholding {f}/dynamic-thresholding',
       f'https://github.com/AlUlkesh/stable-diffusion-webui-images-browser {f}/images-browser',
       f'https://github.com/opparco/stable-diffusion-webui-two-shot {f}/latent-couple-two-shot',
+      f'https://github.com/gutris1/sd-hub {f}/sd-hub',
       f'https://github.com/space-nuko/sd-webui-session-organizer {f}/session-organizer',
       f'https://github.com/ilian6806/stable-diffusion-webui-state {f}/state',
       f'https://github.com/DominikDoom/a1111-sd-webui-tagcomplete {f}/tagcomplete',
@@ -240,20 +208,13 @@ def extensions_list(option,webui_version='stable',controlnet='none', only_contro
     print('😮 Experimental extensions are prefixed with "z-"')
     ext_list = extensions['latest'] + extensions['experimental']
 
-  if option in ['latest', 'experimental'] and webui_version == 'fallback':
-    print(f'\n😱 The fallback version of the web UI and {option} extensions do not mix well.')
-    print(f'📣 Some extensions might be broken! You have been warned!\n')
-
   if controlnet != 'none' and option not in ['none', 'lite']:
     print(f'💃 ControlNet {controlnet} models detected, including related extensions!')
     controlnet_installed = True
     ext_list += controlnet_extensions['latest']
 
-  if webui_version == 'fallback':
-    print('\n📣 Fallback web UI version detected, using older extensions!\n')
-
   if option != 'none':
-    print(f'📦 Installing {len(ext_list)} extensions...')
+    print(f'📦 Installing {len(ext_list)} extensions ({option})...')
 
   ext_list.sort(key=sort_ext)
   return ext_list
@@ -281,12 +242,6 @@ def configs_list():
 def patch_list():
   global chosen_webui_version
 
-  def replace(item):
-    if isinstance(item, str):
-      item = item.replace('prepare_environment()', 'import webui')
-      item = item.replace('launch.py', 'modules/launch_utils.py')
-    return item
-
   import requests
   url = 'https://github.com/NUROISEA/anime-webui-colab/raw/main/configs/patch_list.txt'
   response = requests.get(url)
@@ -294,10 +249,32 @@ def patch_list():
   print('🩹 Applying web UI Colab patches...')
   p_list = data.splitlines()
 
-  if chosen_webui_version not in ['fallback']:
-    p_list[:] = [replace(item) for item in p_list]
+  # still haphazardly adding this
+  extra_patches = [
+    'echo "🩹 Applying Colab memory patches..."',
+    'wget -q https://github.com/camenduru/gperftools/releases/download/v1.0/libtcmalloc_minimal.so.4 -O /content/libtcmalloc_minimal.so.4',
 
-  return p_list
+    'echo "🩹 Applying httpx fix for new Colab version..."',
+    # https://github.com/NUROISEA/anime-webui-colab/issues/35#issuecomment-1801356768
+    'pip install -q httpx==0.24.1', 
+
+    # TODO: remove this after this is resolved in main webui repo
+    'echo "🩹 Applying TEMPORARY fix for #53..."',
+    'echo "🔗 https://github.com/NUROISEA/anime-webui-colab/issues/53"',
+    # https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/16732#issuecomment-2553646760,
+    'pip uninstall wandb -y',
+    'pip install -q wandb==0.15.12',
+  ]
+
+  if chosen_webui_version in ['stable']:
+    extra_patches += [
+      'echo "🩹 Applying torch/xformers fix for new Colab version..."',
+      # https://github.com/NUROISEA/anime-webui-colab/issues/39#issuecomment-2002471138
+      'pip uninstall torch xformers -y',
+      'python -m pip install -q torch==2.0.1 torchvision==0.15.2 --extra-index-url https://download.pytorch.org/whl/cu118 xformers==0.0.21',
+    ]
+
+  return p_list + extra_patches
 
 def controlnet_list(option,webui_version='stable',extensions_version='stable'):
   global controlnet_installed
@@ -392,7 +369,7 @@ def controlnet_list(option,webui_version='stable',extensions_version='stable'):
 
   count = len(controlnet_models[option])
   print(f'⌛ This might take a while! Grab a 🍿 or something xD')
-  print('\n📢 These models are FP16, btw. ;)\n')
+  print('📢 These models are FP16, btw. ;)')
   print(f'🤙 Downloading {count} ControlNet {option} files/models...')
 
   return controlnet_models[option]
@@ -429,6 +406,10 @@ def arguments(model='', vae='', tunnel='gradio', ng_token='', ng_region='auto', 
   log_usage(f'tunnel-{tunnel}')
   
   args_clean = list(filter(None, map(str.strip, args))) # thanks, chatgpt!
+
+  # TODO: put this elsewhere
+  print('\n\n\n💬 Logs after this are now logs of the web UI...\n\n\n')
+
   return args_clean
 
 def mount_drive(on_drive=False):
@@ -530,4 +511,18 @@ def dl_vae(link,yaml='',folder=vae_download_folder):
   has_downloaded_at_least_once = True
   return download_vae(link,folder)
 
+###############################################################################
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 print('👍 Utility script imported.')
+
+notices = [
+  '\n ⚠ This notebook is on maintenance mode! No new features but will try to fix random bugs.',
+  '\n 👉 Report bugs and stuff at: https://github.com/NUROISEA/anime-webui-colab/issues/new',
+  '\n 💡 A GitHub account is required to report bugs!',
+  '\n',
+]
+
+for notice in notices:
+  print(notice)
